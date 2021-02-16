@@ -1,5 +1,6 @@
 package com.org.employeemgmt.controller;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -21,12 +22,13 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.org.employeemgmt.constant.ApplicationConstant;
 import com.org.employeemgmt.entity.EmployeeEntity;
 import com.org.employeemgmt.entity.UploadStatusEntity;
+import com.org.employeemgmt.exception.FileNotSupportedException;
 import com.org.employeemgmt.service.EmployeeMgmtService;
 import com.org.employeemgmt.service.UploadStatusService;
 import com.org.employeemgmt.vo.UploadFileResponse;
 
 @RestController
-@RequestMapping("/api/employees/")
+@RequestMapping("/employees")
 public class EmployeeMgmtController {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeMgmtController.class);
@@ -46,11 +48,15 @@ public class EmployeeMgmtController {
 		ResponseEntity<UploadFileResponse> responseEntity = null;
 		UploadFileResponse resp = null;
 		
-		if(file != null) {
+		boolean isValidFile = Arrays.asList(ApplicationConstant.allowableTypes).contains(file.getContentType());
+		
+		LOGGER.info(isValidFile + " " + file.getContentType() + " " + file.getName()+ " " + file.getOriginalFilename());
+		
+		if(file != null && isValidFile) {
 			try { 
 				UploadStatusEntity statusEntity = statusService.saveStatus(
 								new UploadStatusEntity(file.getOriginalFilename(), ApplicationConstant.SUBMITTED,"Saving in Progress"));
-				uploadStatusURI = ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/employees/status/").
+				uploadStatusURI = ServletUriComponentsBuilder.fromCurrentContextPath().path("/employees/status/").
 								path(Long.toString(statusEntity.getReqId())).toUriString();
 				
 				Future<List<EmployeeEntity>> employeeList = empService.save(file,statusEntity.getReqId());
@@ -67,7 +73,9 @@ public class EmployeeMgmtController {
 				resp.setStatusMessage(e.getMessage());
 				responseEntity = new ResponseEntity<>(resp, HttpStatus.INTERNAL_SERVER_ERROR);
 			}
-		} 
+		} else {
+			throw new FileNotSupportedException("File Not Supported");
+		}
 		return responseEntity;
 	}
 	

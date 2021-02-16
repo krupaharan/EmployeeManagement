@@ -19,7 +19,7 @@ import com.org.employeemgmt.vo.EmployeeVO;
 
 /** Basic CRUD Operations on Employee **/
 @RestController
-@RequestMapping("/api/employees/")
+@RequestMapping("/employees")
 public class EmployeeController {
 
 	@Autowired
@@ -70,7 +70,7 @@ public class EmployeeController {
 		case "CREATED":
 			httpStatus = HttpStatus.CREATED;
 			break;
-		case "Ok":
+		case "OK":
 			httpStatus = HttpStatus.OK;
 			break;
 		default:

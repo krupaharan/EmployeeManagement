@@ -23,21 +23,16 @@ public class EmployeeHelper {
 	public static List<EmployeeEntity> convertToBean(InputStream istream) {
 	
 		List<EmployeeEntity> employeeList = new ArrayList<EmployeeEntity>();
-		LOGGER.info("ConvertToBean method called");
 		try {
 			BufferedReader fileReader = new BufferedReader(new InputStreamReader(istream,"UTF-8"));
-			LOGGER.info("Checkpoint #1");
 			CSVParser parser = new CSVParser(fileReader, 
 					CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withDelimiter(' ').withTrim());
-			LOGGER.info("Checkpoint #2");
-		    
+			
 		    Iterable<CSVRecord> csvRecords = parser.getRecords();
-		    LOGGER.info("Checkpoint #3");
 		    for (CSVRecord csvRecord : csvRecords) {
 		    	EmployeeEntity employee = new EmployeeEntity(csvRecord.get("name"),Integer.parseInt(csvRecord.get("age")));
 		    	employeeList.add(employee);
 		    }
-		    LOGGER.info("Checkpoint #4");
 		    
 		} catch(IOException ie) {
 			LOGGER.info("Failed to parse the file. Please check and try again");

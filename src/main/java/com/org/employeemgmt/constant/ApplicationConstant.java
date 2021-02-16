@@ -11,4 +11,6 @@ public class ApplicationConstant {
 	public static final String SUBMITTED = "SUBMITTED";
 	public static final String FAILED = "FAILED";
 	public static final String COMPLETED = "COMPLETED";
+	
+	public static final String[] allowableTypes = {"text/csv","text/plain"};
 }

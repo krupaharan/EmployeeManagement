@@ -94,7 +94,7 @@ public class EmployeeMgmtService {
 				return contructVO(ApplicationConstant.HTTP_STATUS_NOT_FOUND,"Resource Not Found",empEntity);
 			} else {
 				employeeRepo.delete(empEntity);
-				return contructVO(ApplicationConstant.HTTP_STATUS_OK,"Resource Found",empEntity);
+				return contructVO(ApplicationConstant.HTTP_STATUS_OK,"Resource Deleted",empEntity);
 			}
 		} catch (Exception e) {
 			LOGGER.info("Exception occured in getEmployeeById " + e.getMessage());
