@@ -8,12 +8,11 @@ public class EmployeeVO extends BaseVO {
 	
 	private int age;
 	
-	public EmployeeVO(BaseVO baseVO) {
-		super(baseVO.getStatus(), baseVO.getStatusMessage());
+	public EmployeeVO() {
+		
 	}
 	
-	public EmployeeVO(BaseVO baseVO, long empId, String empName, int age) {
-		super(baseVO.getStatus(), baseVO.getStatusMessage());
+	public EmployeeVO(long empId, String empName, int age) {
 		this.empId = empId;
 		this.empName = empName;
 		this.age = age;

@@ -38,6 +38,7 @@ public class EmployeeMgmtService {
 		try {
 	      List<EmployeeEntity> employeeList = EmployeeHelper.convertToBean(file.getInputStream());
 	      empList = employeeRepo.saveAll(employeeList);
+	      
 	      //Update Status Message
 	      statusService.updateStatusById(requestId,ApplicationConstant.COMPLETED);
 	    } catch (IOException e) {
@@ -50,84 +51,87 @@ public class EmployeeMgmtService {
 	
 	public EmployeeVO addEmployee(EmployeeEntity employee) {
 		EmployeeEntity empEntity = null;
-		BaseVO baseVO = null;
 		try {
 			if(employeeRepo.existsById(employee.getEmpId())) {
-				baseVO = new BaseVO(ApplicationConstant.HTTP_STATUS_CONFLICT,"Resource already exists");
-				return new EmployeeVO(baseVO);
+				return contructVO(ApplicationConstant.HTTP_STATUS_CONFLICT,"Resource already exists",empEntity);
 			} else {
 				empEntity = employeeRepo.save(employee);
-				baseVO = new BaseVO(ApplicationConstant.HTTP_STATUS_CREATED,"Resource Created");
+				return contructVO(ApplicationConstant.HTTP_STATUS_OK,"Resource Found",empEntity);
 			}
 		} catch (Exception e) {
 			LOGGER.info("Exception occured in addEmployee " + e.getMessage());
-			baseVO = new BaseVO(ApplicationConstant.HTTP_STATUS_ISE,"Error occured in creating the resource");
-			return new EmployeeVO(baseVO);
+			return contructVO(ApplicationConstant.HTTP_STATUS_ISE,"Error occured in creating the resource",empEntity);
 		}
-		return new EmployeeVO(baseVO,empEntity.getEmpId(),empEntity.getEmpName(),empEntity.getAge());
+		//return new EmployeeVO(baseVO,empEntity.getEmpId(),empEntity.getEmpName(),empEntity.getAge());
 	}
 	
 	public EmployeeVO updateEmployeeById(long empId,EmployeeEntity entity) {
 		
 		EmployeeEntity empEntity = null;
-		BaseVO baseVO = null;
 		try {
 			empEntity = employeeRepo.findByEmpId(empId);
 			if(empEntity == null) {
-				baseVO = new BaseVO(ApplicationConstant.HTTP_STATUS_NOT_FOUND,"Resource Not Found");
-				return new EmployeeVO(baseVO);
+				return contructVO(ApplicationConstant.HTTP_STATUS_NOT_FOUND,"Resource Not Found",empEntity);
 			} else {
 				empEntity.setAge(entity.getAge());
 				empEntity.setEmpName(entity.getEmpName());
 				employeeRepo.save(empEntity);
-				baseVO = new BaseVO(ApplicationConstant.HTTP_STATUS_OK,"Resource Updated");
+				return contructVO(ApplicationConstant.HTTP_STATUS_OK,"Resource Found",empEntity);
 			}
 		} catch (Exception e) {
 			LOGGER.info("Exception occured in getEmployeeById " + e.getMessage());
-			baseVO = new BaseVO(ApplicationConstant.HTTP_STATUS_ISE,"Error occured in creating the resource");
-			return new EmployeeVO(baseVO);
+			return contructVO(ApplicationConstant.HTTP_STATUS_ISE,"Error occured in creating the resource",empEntity);
 		}
-		return new EmployeeVO(baseVO,empEntity.getEmpId(),empEntity.getEmpName(),empEntity.getAge());
+		//return new EmployeeVO(baseVO,empEntity.getEmpId(),empEntity.getEmpName(),empEntity.getAge());
 	}
 	
 	public EmployeeVO deleteByEmployeeId(long empId) {
 		
 		EmployeeEntity empEntity = null;
-		BaseVO baseVO = null;
 		try {
 			empEntity = employeeRepo.findByEmpId(empId);
 			if(empEntity == null) {
-				baseVO = new BaseVO(ApplicationConstant.HTTP_STATUS_NOT_FOUND,"Resource Not Found");
-				return new EmployeeVO(baseVO);
+				return contructVO(ApplicationConstant.HTTP_STATUS_NOT_FOUND,"Resource Not Found",empEntity);
 			} else {
 				employeeRepo.delete(empEntity);
-				baseVO = new BaseVO(ApplicationConstant.HTTP_STATUS_OK,"Resource Deleted");
+				return contructVO(ApplicationConstant.HTTP_STATUS_OK,"Resource Found",empEntity);
 			}
 		} catch (Exception e) {
 			LOGGER.info("Exception occured in getEmployeeById " + e.getMessage());
-			baseVO = new BaseVO(ApplicationConstant.HTTP_STATUS_ISE,"Error occured in creating the resource");
-			return new EmployeeVO(baseVO);
+			return contructVO(ApplicationConstant.HTTP_STATUS_ISE,"Error occured in creating the resource",empEntity);
 		}
-		return new EmployeeVO(baseVO,empEntity.getEmpId(),empEntity.getEmpName(),empEntity.getAge());
+		//return new EmployeeVO(baseVO,empEntity.getEmpId(),empEntity.getEmpName(),empEntity.getAge());
 	}
 	
 	public EmployeeVO getEmployeeById(Long empId) {
 		
 		EmployeeEntity empEntity = null;
-		BaseVO baseVO = null;
 		try {
 			empEntity = employeeRepo.findByEmpId(empId);
 			if(empEntity == null) {
-				baseVO = new BaseVO(ApplicationConstant.HTTP_STATUS_NOT_FOUND,"Resource Not Found");
-				return new EmployeeVO(baseVO);
+				return contructVO(ApplicationConstant.HTTP_STATUS_NOT_FOUND,"Resource Not Found",empEntity);
 			} else {
-				baseVO = new BaseVO(ApplicationConstant.HTTP_STATUS_OK,"Resource Found");
+				return contructVO(ApplicationConstant.HTTP_STATUS_OK,"Resource Found",empEntity);
 			}
 		} catch (Exception e) {
 			LOGGER.info("Exception occured in getEmployeeById " + e.getMessage());
-			baseVO = new BaseVO(ApplicationConstant.HTTP_STATUS_ISE,"Error occured in creating the resource");
-			return new EmployeeVO(baseVO);
+			return contructVO(ApplicationConstant.HTTP_STATUS_ISE,"Error occured in creating the resource",empEntity);
 		}
-		return new EmployeeVO(baseVO,empEntity.getEmpId(),empEntity.getEmpName(),empEntity.getAge());
+		//return contructVO();
+	}
+	
+	private EmployeeVO contructVO(String status, String statusMessge, EmployeeEntity empEntity) {
+		
+		EmployeeVO empVO = null;
+		if(empEntity != null) {
+			empVO = new EmployeeVO(empEntity.getEmpId(),empEntity.getEmpName(),empEntity.getAge());
+			empVO.setStatusMessage(statusMessge);
+			empVO.setStatus(status);
+		} else {
+			empVO = new EmployeeVO();
+			empVO.setStatus(status);
+			empVO.setStatusMessage(statusMessge);
+		}
+		return empVO;
 	}
 }

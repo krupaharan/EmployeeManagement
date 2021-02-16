@@ -56,13 +56,15 @@ public class EmployeeMgmtController {
 				Future<List<EmployeeEntity>> employeeList = empService.save(file,statusEntity.getReqId());
 				fObjects.put(statusEntity.getReqId(), employeeList);
 				
-				resp =  new UploadFileResponse(file.getOriginalFilename(),uploadStatusURI, 
-									statusEntity.getStatus(), statusEntity.getMessage());
+				resp =  new UploadFileResponse(file.getOriginalFilename(),uploadStatusURI);
+				resp.setStatus(statusEntity.getStatus());
+				resp.setStatusMessage(statusEntity.getMessage());
 				responseEntity = new ResponseEntity<>(resp, HttpStatus.ACCEPTED);
 				
 			} catch(Exception e) {
-				resp =  new UploadFileResponse(file.getOriginalFilename(),uploadStatusURI, 
-						ApplicationConstant.FAILED, e.getMessage());
+				resp =  new UploadFileResponse(file.getOriginalFilename(),uploadStatusURI);
+				resp.setStatus(ApplicationConstant.FAILED);
+				resp.setStatusMessage(e.getMessage());
 				responseEntity = new ResponseEntity<>(resp, HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		} 
@@ -76,7 +78,9 @@ public class EmployeeMgmtController {
 		UploadFileResponse resp = null;
 		
 		if(!fObjects.containsKey(requestId)) {
-			resp =  new UploadFileResponse(null,null, ApplicationConstant.FAILED, "No data available");
+			resp =  new UploadFileResponse();
+			resp.setStatus(ApplicationConstant.FAILED);
+			resp.setStatusMessage("No data available");
 			return new ResponseEntity<>(resp, HttpStatus.NOT_FOUND);
 		}
 		try {
@@ -84,17 +88,27 @@ public class EmployeeMgmtController {
 			if(futureList.isDone()) {
 				List<EmployeeEntity> employeeList = futureList.get();
 				if(employeeList == null || employeeList.isEmpty()) {
-					resp =  new UploadFileResponse(null,null, ApplicationConstant.FAILED, "Failed to process the request. Please resubmit");
+					resp =  new UploadFileResponse();
+					resp.setStatus(ApplicationConstant.FAILED);
+					resp.setStatusMessage("Failed to process the request. Please resubmit");
 					responseEntity = new ResponseEntity<>(resp, HttpStatus.NOT_FOUND);
 				} else {
 					UploadStatusEntity fileStatus = statusService.getStatusById(requestId);
-					resp =  new UploadFileResponse(fileStatus.getFileName(),null, fileStatus.getStatus(),fileStatus.getMessage());
+					resp =  new UploadFileResponse(fileStatus.getFileName(),null);
+					resp.setStatus(fileStatus.getStatus());
+					resp.setStatusMessage(fileStatus.getMessage());
 					responseEntity = new ResponseEntity<>(resp, HttpStatus.OK);
 				}
+			} else {
+				resp =  new UploadFileResponse();
+				resp.setStatus(ApplicationConstant.SUBMITTED);
+				resp.setStatusMessage("Saving in progress");
+				responseEntity = new ResponseEntity<>(resp, HttpStatus.PROCESSING);
 			}
 		} catch(Exception e) {
-			resp =  new UploadFileResponse(null,null, 
-					ApplicationConstant.FAILED, e.getMessage());
+			resp =  new UploadFileResponse();
+			resp.setStatus(ApplicationConstant.FAILED);
+			resp.setStatusMessage(e.getMessage());
 			responseEntity = new ResponseEntity<>(resp, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return responseEntity;

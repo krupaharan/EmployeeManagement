@@ -6,8 +6,11 @@ public class UploadFileResponse extends BaseVO {
 	
 	private String uri;
 	
-	public UploadFileResponse(String fileName, String uri, String status, String statusMessage) {
-		super(status,statusMessage);
+	public UploadFileResponse() {
+		
+	}
+	
+	public UploadFileResponse(String fileName, String uri) {
 		this.fileName = fileName;
 		this.uri = uri;
 	}

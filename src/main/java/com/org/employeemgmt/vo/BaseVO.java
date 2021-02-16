@@ -10,11 +10,6 @@ public class BaseVO implements Serializable {
 	
 	private String statusMessage;
 	
-	public BaseVO(String status, String statusMessage) {
-		this.status = status;
-		this.statusMessage = statusMessage;
-	}
-
 	public String getStatus() {
 		return status;
 	}
